@@ -36,11 +36,9 @@ public class PlaylistService {
     private CourseServices courseServices;
 
     @Transactional
-    public Playlist addPlayList(PlaylistDTO playlistDTO, MultipartFile file, int id) throws IOException {
-        User user = userService.findById(id);
-        if (user == null) {
-            throw new IllegalArgumentException("User with ID " + id + " not found");
-        }
+    public Playlist addPlayList(PlaylistDTO playlistDTO, MultipartFile file, String email) throws IOException {
+        User user = userService.findByEmail(email);
+        if (user == null) return null;
 
         Course course = courseServices.findById(playlistDTO.getCourseId());
         if (course == null) {

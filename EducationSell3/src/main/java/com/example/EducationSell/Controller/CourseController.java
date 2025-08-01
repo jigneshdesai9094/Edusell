@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,6 +37,11 @@ public class CourseController {
     @PostMapping(value = "/addCourse", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addCourse(@RequestPart("image") MultipartFile file,
                                        @RequestPart("courseDetails") String courseDTO) throws IOException {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+
         // File validation
         if (file == null || file.isEmpty()) {
             return new ResponseEntity<>("File is required and cannot be empty", HttpStatus.BAD_REQUEST);
@@ -61,7 +68,10 @@ public class CourseController {
 
         // Validate DTO
         // Note: Validation should be done in service layer or by a validator, but we handle it after deserialization
-        Course courseAdded = courseServices.addCourse(courseDetailsDto, file, 1);
+        Course courseAdded = courseServices.addCourse(courseDetailsDto, file, email);
+
+        if(courseAdded == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
         return ResponseEntity.ok(courseAdded);
     }
 

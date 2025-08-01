@@ -28,11 +28,9 @@ public class CourseServices {
     private UserService userService;
 
     @Transactional
-    public Course addCourse(CourseDTO courseDTO, MultipartFile file, Integer id) throws IOException {
-        User user = userService.findById(id);
-        if (user == null) {
-            throw new IllegalArgumentException("User with ID " + id + " not found");
-        }
+    public Course addCourse(CourseDTO courseDTO, MultipartFile file, String email) throws IOException {
+        User user = userService.findByEmail(email);
+        if (user == null) return null;
 
         Map fileInfo = imageUploadService.uploadImage(file);
 
