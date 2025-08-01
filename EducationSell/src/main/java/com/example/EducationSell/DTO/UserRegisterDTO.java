@@ -7,6 +7,9 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 public class UserRegisterDTO {
@@ -26,4 +29,7 @@ public class UserRegisterDTO {
 
     @NotNull(message = "Role ID is required")
     private Integer roleId;
+
+    public UserRegisterDTO(String username, String email, String mobileNo, LocalDateTime createdAt, Set<String> collect) {
+    }
 }

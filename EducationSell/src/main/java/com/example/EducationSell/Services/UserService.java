@@ -7,8 +7,9 @@ import com.example.EducationSell.Model.Role;
 import com.example.EducationSell.Model.User;
 import com.example.EducationSell.Repository.RoleRepository;
 import com.example.EducationSell.Repository.UserRepository;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,8 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
      @Autowired
      private UserRepository userRepository;
@@ -67,16 +70,18 @@ public class UserService {
          Optional<Role> optionalRole = roleRepository.findById(dto.getRoleId());
 
          Role role = optionalRole.get();
-
-//         role.getUsers().add(user);
-
          user.getRoles().add(role);
-
-//         roleRepository.save(role);
-
+         user.setPassword(passwordEncoder.encode(user.getPassword()));
          userRepository.save(user);
 
          return  "register successfully";
+     }
+
+     public User findByUserName(String username){
+        Optional<User> user =  userRepository.findByUsername(username);
+        if(user.isPresent()) return user.orElse(null);
+
+        return null;
      }
 
 }

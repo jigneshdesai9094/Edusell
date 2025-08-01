@@ -27,13 +27,12 @@ public class CourseServices {
     @Autowired
     private UserService userService;
 
-    public Course addCourse(CourseDTO courseDTO, MultipartFile file,Integer id) throws IOException {
-        User user= userService.findById(id);
+    public Course addCourse(CourseDTO courseDTO, MultipartFile file,String username) throws IOException {
+        User user= userService.findByUserName(username);
         System.out.println(user);
         if(user == null) return null;
 
         Map fileInfo = imageUploadService.uploadImage(file);
-
         Course course = new Course();
         course.setThumbnailUrl((String) fileInfo.get("secure_url"));
         course.setCourseName(courseDTO.getCourseName());
@@ -41,13 +40,8 @@ public class CourseServices {
         course.setPrice(courseDTO.getPrice());
         course.setInstructor(user);
         course.setCreatedAt(LocalDateTime.now());
-
         user.getCreatedCourses().add(course);
-
-
         return courseRepository.save(course);
-
-
     }
 
     public Course findById(int id){

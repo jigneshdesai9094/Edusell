@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +42,10 @@ public class CourseController {
     public ResponseEntity<?> addCourse(@RequestPart("image") MultipartFile file,
                                        @RequestPart("courseDetails") @Valid String courseDTO
                                        ) throws IOException {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
         // File validation
         if (file == null || file.isEmpty()) {
             return new ResponseEntity<>("File is required and cannot be empty", HttpStatus.BAD_REQUEST);
@@ -64,7 +70,7 @@ public class CourseController {
             return new ResponseEntity<>("Invalid course details JSON format: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        Course courseAdded = courseServices.addCourse(courseDetailsDto, file, 1);
+        Course courseAdded = courseServices.addCourse(courseDetailsDto, file, username);
         if (courseAdded != null) {
             return new ResponseEntity<>(courseAdded, HttpStatus.OK);
         }

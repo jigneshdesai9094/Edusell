@@ -36,21 +36,19 @@ public class PlaylistService {
     @Autowired
     private CourseServices courseServices;
 
-    public Playlist addPlayList(PlaylistDTO playlistDTO, MultipartFile file,int id) throws IOException {
+    public Playlist addPlayList(PlaylistDTO playlistDTO, MultipartFile file,String username) throws IOException {
 
-        User user= userService.findById(id);
-        System.out.println("user find out");
-//        System.out.println(user);
+        User user= userService.findByUserName(username);
+
         if(user == null) {
-            System.out.println("user come null");
             return null;
         }
 
         Course course = courseServices.findById(playlistDTO.getCourseId());
         if(course == null) {
-            System.out.println("course come null");
             return null;
-        };
+        }
+
         System.out.println("image name is : "+file.getOriginalFilename());
         Map fileInfo = imageUploadService.uploadImage(file);
 
@@ -59,7 +57,7 @@ public class PlaylistService {
         playlist.setDescription(playlistDTO.getDescription());
         playlist.setCourse(course);
         playlist.setThumbnailUrl((String) fileInfo.get("secure_url"));
-//        playlist.setInstructor(user);
+
         playlist.setCreatedAt(LocalDateTime.now());
 
         return playlistRepository.save(playlist);

@@ -19,6 +19,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "courseId")
 public class Course {
 
@@ -37,6 +38,7 @@ public class Course {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "InstructorID", nullable = false)
+    @ToString.Exclude
     private User instructor;
 
 
