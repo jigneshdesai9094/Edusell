@@ -1,7 +1,9 @@
 package com.example.EducationSell.Controller;
 
 import com.example.EducationSell.DTO.CourseDTO;
+import com.example.EducationSell.DTO.PlaylistDTO;
 import com.example.EducationSell.Model.Course;
+import com.example.EducationSell.Model.Playlist;
 import com.example.EducationSell.Services.CloudinaryService.ImageUploadService;
 import com.example.EducationSell.Services.Insteractor.CourseServices;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,9 +20,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 
 @RestController
+
 @RequestMapping("/course")
+@CrossOrigin(origins = "http://localhost:5173",allowCredentials = "true")
+
 public class CourseController {
 
     private static final long MAX_FILE_SIZE = 2 * 1024 * 1024;
@@ -113,5 +121,43 @@ public class CourseController {
             return ResponseEntity.ok("Course and associated playlists deleted successfully");
         }
         return new ResponseEntity<>("Course not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/listOfCourse")
+    public ResponseEntity<?> fetchMyCourse(){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        List<Map<String, String>> listOfCourse = courseServices.findByInstructorId(email);
+        if(listOfCourse == null){
+            return new ResponseEntity<>(listOfCourse,HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(listOfCourse,HttpStatus.OK);
+
+    }
+
+    @GetMapping("/getAllCourses")
+    public ResponseEntity<?> getAllCourses(){
+        Authentication authentication =SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        List<CourseDTO> listOfCourses = courseServices.getAllCourses(email);
+
+//        if(listOfCourses.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        return new ResponseEntity<>(listOfCourses,HttpStatus.OK);
+    }
+
+    @GetMapping("/{course_id}")
+    public ResponseEntity<?> getPlaylist(@PathVariable String course_id){
+        try {
+            int courseId = Integer.parseInt(course_id);
+            List<PlaylistDTO> playlists = courseServices.getCoursePlayList(courseId);
+            return new ResponseEntity<>(playlists,HttpStatus.OK);
+        } catch (NumberFormatException e) {
+            return new ResponseEntity<>("Something wen't wrong",HttpStatus.BAD_REQUEST);
+        }
     }
 }

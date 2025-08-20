@@ -33,4 +33,8 @@ public class VideoDTO {
     private Integer videoReportNo;
 
     private LocalDateTime uploadDate;
+    private Integer videoId;
+    private String videoUrl;
+    private String thumbnailUrl;
+    private Integer duration;
 }

@@ -1,11 +1,17 @@
 package com.example.EducationSell.Controller;
 
 import com.example.EducationSell.DTO.PlaylistDTO;
+import com.example.EducationSell.DTO.VideoDTO;
+import com.example.EducationSell.Model.Note;
 import com.example.EducationSell.Model.Playlist;
+import com.example.EducationSell.Services.Insteractor.NotesService;
 import com.example.EducationSell.Services.Insteractor.PlaylistService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/playlist")
+@CrossOrigin(origins = "http://localhost:5173",allowCredentials = "true")
 public class PlaylistController {
 
     private static final long MAX_FILE_SIZE = 2 * 1024 * 1024;
@@ -27,11 +36,15 @@ public class PlaylistController {
     private PlaylistService playlistService;
 
     @Autowired
+    private NotesService notesService;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @PostMapping(value = "/addPlayList", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addPlayList(@RequestPart("image") MultipartFile file,
-                                         @RequestPart("playlistDetails") String playlistDetails) throws IOException {
+                                         @RequestPart("playlistDetails") String playlistDetails,
+                                         @RequestPart(value = "note", required = false) MultipartFile note) throws IOException {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
@@ -61,7 +74,14 @@ public class PlaylistController {
         Playlist isAdded = playlistService.addPlayList(playlistDTO, file, email);
 
         if(isAdded == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
+        if(note!=null)
+        {
+            System.out.println("note is not null and added");
+            notesService.noteUpload(note, isAdded.getPlaylistId());
+        }
+        else {
+            System.out.println("note is null");
+        }
         return ResponseEntity.ok(isAdded);
     }
 
@@ -102,4 +122,46 @@ public class PlaylistController {
         }
         return new ResponseEntity<>("Playlist not found", HttpStatus.NOT_FOUND);
     }
+
+    @GetMapping("/getPlaylistName")
+    public ResponseEntity<?> getPlayListName(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        List<Map<String,String>> playlistName = playlistService.getPlayListName(email);
+
+        if(playlistName.isEmpty()) return new ResponseEntity<>("Playlist Not Found",HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(playlistName,HttpStatus.OK);
+    }
+
+    @GetMapping("/getNote/{id}")
+    public ResponseEntity<?> getNoteByPlaylist(@PathVariable("id") Integer id) throws IOException{
+        Note note = playlistService.getNoteByPlaylist(id);
+        if (note == null) {
+            return new ResponseEntity<>("No Note found for playlist ID: " + id, HttpStatus.NOT_FOUND);
+        }
+        Resource resource = new UrlResource(note.getNoteUrl());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=\"course_notes_" + System.currentTimeMillis() + ".pdf\"");
+        headers.add("Content-Type", "application/pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(resource.contentLength())
+                .body(resource);
+    }
+
+
+    @GetMapping("/getVideos/{id}")
+    public ResponseEntity<?> getVideosByPlaylist(@PathVariable("id") Integer id) {
+
+        List<VideoDTO> videos = playlistService.getVideosByPlaylist(id);
+
+//        if (videos.isEmpty()) {
+//            return new ResponseEntity<>("No videos found for playlist ID: " + id, HttpStatus.NOT_FOUND);
+//        }
+        return ResponseEntity.ok(videos);
+    }
+
+
 }

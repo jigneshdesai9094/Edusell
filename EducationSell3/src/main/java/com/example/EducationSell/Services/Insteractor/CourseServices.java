@@ -1,7 +1,9 @@
 package com.example.EducationSell.Services.Insteractor;
 
 import com.example.EducationSell.DTO.CourseDTO;
+import com.example.EducationSell.DTO.PlaylistDTO;
 import com.example.EducationSell.Model.Course;
+import com.example.EducationSell.Model.Playlist;
 import com.example.EducationSell.Model.User;
 import com.example.EducationSell.Repository.CourseRepository;
 import com.example.EducationSell.Services.CloudinaryService.ImageUploadService;
@@ -13,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class CourseServices {
@@ -99,4 +103,52 @@ public class CourseServices {
     public void save(Course course) {
         courseRepository.save(course);
     }
+
+    public List<Map<String, String>> findByInstructorId(String email) {
+        User user = userService.findByEmail(email);
+        List<Map<String, String>> l = new ArrayList<>();
+
+        List<Course> courses = user.getCreatedCourses();
+        Iterator<Course> iterator = courses.iterator();
+        Map<String, String> courseList = null;
+        while (iterator.hasNext()) {
+            courseList = new HashMap<>();
+            Course c = iterator.next();
+            courseList.put("courseId",c.getCourseId().toString());
+            courseList.put("courseName", c.getCourseName());
+            l.add(courseList);
+        }
+
+
+        if (courses.isEmpty()) return null;
+        return l;
+    }
+
+    public List<CourseDTO> getAllCourses(String email){
+        User user = userService.findByEmail(email);
+        if(user == null) return null;
+//        return user.getCreatedCourses();
+
+        List<CourseDTO> courses = user.getCreatedCourses()
+                .stream()
+                .map(CourseDTO::new)
+                .toList();
+
+        return courses;
+    }
+
+    public List<PlaylistDTO> getCoursePlayList(int courseId){
+
+
+        Course course = findById(courseId);
+        if (course == null) return null;
+
+        List<PlaylistDTO> playlistDTOS = course.getPlaylists()
+                .stream()
+                .map(PlaylistDTO::new)
+                .toList();
+
+        return playlistDTOS;
+    }
+
 }

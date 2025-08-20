@@ -39,6 +39,7 @@ public class VideoServices {
         Map imageFile = imageUploadService.uploadImage(file);
         Map videoFileResult = imageUploadService.uploadImage(videoFile);
 
+        System.out.println(videoDTO);
         Video video = new Video();
         video.setPlaylist(playlist);
         video.setTitle(videoDTO.getTitle());

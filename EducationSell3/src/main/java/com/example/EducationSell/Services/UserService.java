@@ -8,6 +8,8 @@ import com.example.EducationSell.Repository.RoleRepository;
 import com.example.EducationSell.Repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +23,9 @@ public class UserService {
 
     @Autowired
     private EmailOtpService emailOtpService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Transactional
     public User findById(Integer id) {
@@ -56,6 +61,8 @@ public class UserService {
         user.setPassword(dto.getPassword());
         user.setUsername(dto.getUsername());
         user.setMobileNo(dto.getMobileNo());
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         Role role = roleRepository.findById(dto.getRoleId())
                 .orElseThrow(() -> new IllegalArgumentException("Role with ID " + dto.getRoleId() + " not found"));

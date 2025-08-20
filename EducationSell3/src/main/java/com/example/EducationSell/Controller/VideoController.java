@@ -76,6 +76,8 @@ public class VideoController {
             }
         }
 
+        System.out.println(videoDetails);
+
         VideoDTO videoDTO;
         try {
             videoDTO = objectMapper.readValue(videoDetails, VideoDTO.class);

@@ -26,8 +26,6 @@ public class Playlist {
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
-
-
     @ManyToOne
     @JoinColumn(name = "CourseID", nullable = false)
     private Course course;
@@ -45,6 +43,14 @@ public class Playlist {
 
     @OneToMany(mappedBy = "playlist",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Video> videos = new ArrayList<>();
+
+    public Playlist(Playlist playlist) {
+        this.playlistId = playlist.playlistId;
+        this.playlistName = playlist.playlistName;
+        this.description = playlist.getDescription();
+        this.thumbnailUrl = playlist.getThumbnailUrl();
+        this.createdAt = playlist.getCreatedAt();
+    }
 
 
     @PrePersist

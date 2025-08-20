@@ -1,5 +1,7 @@
 package com.example.EducationSell.DTO;
 
+import com.example.EducationSell.Model.Note;
+import com.example.EducationSell.Model.Playlist;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +16,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlaylistDTO {
+
+    private Integer playlistID;
+    private String thumbnailUrl;
 
     @NotBlank(message = "Playlist name is required")
     @Size(max = 255, message = "Playlist name must not exceed 255 characters")
@@ -35,4 +40,23 @@ public class PlaylistDTO {
 //    private String thumbnailUrl;
 
     private LocalDateTime createdAt;
+
+    private Integer noteId;
+
+    public PlaylistDTO(Playlist playlist) {
+        this.playlistID = playlist.getPlaylistId();
+        this.playlistName = playlist.getPlaylistName();
+        this.description = playlist.getDescription();
+        this.thumbnailUrl = playlist.getThumbnailUrl();
+        this.createdAt = playlist.getCreatedAt();
+        Note note = playlist.getNote();
+        if(note==null)
+        {
+           noteId=null;
+        }
+        else
+        {
+            noteId=note.getNoteId();
+        }
+    }
 }
