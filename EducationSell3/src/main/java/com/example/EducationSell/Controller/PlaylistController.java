@@ -156,10 +156,6 @@ public class PlaylistController {
     public ResponseEntity<?> getVideosByPlaylist(@PathVariable("id") Integer id) {
 
         List<VideoDTO> videos = playlistService.getVideosByPlaylist(id);
-
-//        if (videos.isEmpty()) {
-//            return new ResponseEntity<>("No videos found for playlist ID: " + id, HttpStatus.NOT_FOUND);
-//        }
         return ResponseEntity.ok(videos);
     }
 
